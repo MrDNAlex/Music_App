@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="15dp"
+            android:orientation="vertical">
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/ObjectDisplay"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal">
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+            <TextView
+                android:id="@+id/Instances"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="20 Instances"
+                android:textColor="#ffffff"
+                android:textSize="30sp">
+
+            </TextView>
+
+            <Button
+                android:id="@+id/ExpandButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Expand"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+            </Button>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

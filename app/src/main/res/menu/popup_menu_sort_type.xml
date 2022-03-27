@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/AlphabeticalSort"
+        android:title="Alphabetical"
+        >
+    </item>
+
+    <item
+        android:id="@+id/DateSort"
+        android:title="Date"
+        >
+    </item>
+
+    <item
+        android:id="@+id/LengthSort"
+        android:title="Length"
+        >
+    </item>
+
+    <item
+        android:id="@+id/PlaylistRankPopupMenuSort"
+        android:title="Playlist Rank"
+        >
+    </item>
+
+    <item
+        android:id="@+id/UniversalRankPopupMenuSort"
+        android:title="Universal Rank"
+        >
+    </item>
+
+    <item
+        android:id="@+id/MoodPopupMenuSort"
+        android:title="Mood"
+        >
+    </item>
+
+    <item
+        android:id="@+id/TagPopupMenuSort"
+        android:title="Tag"
+        >
+    </item>
+
+</menu>

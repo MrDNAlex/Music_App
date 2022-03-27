@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/MusicPlayerBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bckgrnd"
+    android:orientation="vertical"
+    tools:context=".MusicPlayer">
+
+    <TabHost
+        android:id="@+id/tabhost"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!--Tab widget to select the tab-->
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                >
+
+            </TabWidget>
+
+            <!--FrameLayout which contains the data of the activity-->
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <!--for tab 1-->
+
+                <LinearLayout
+                    android:id="@+id/PlayInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginBottom="10dp">
+
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:cardCornerRadius="8dp">
+
+                                <ImageView
+                                    android:id="@+id/PISongImage"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:src="@drawable/placeholder"
+                                    android:transitionName="image_transition">
+
+                                </ImageView>
+
+                            </androidx.cardview.widget.CardView>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="15dp"
+                                android:gravity="center"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/PISongPlaylistRank"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginRight="30dp"
+                                    android:text=""
+                                    android:textSize="25sp">
+
+                                </TextView>
+
+                                <RelativeLayout
+                                    android:layout_width="240dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginRight="30dp"
+                                    android:gravity="center">
+
+                                    <TextView
+                                        android:id="@+id/PISongName"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:ellipsize="marquee"
+                                        android:marqueeRepeatLimit="marquee_forever"
+                                        android:scrollHorizontally="true"
+                                        android:singleLine="true"
+                                        android:text="Yellow"
+                                        android:textSize="25sp">
+
+                                    </TextView>
+
+                                </RelativeLayout>
+
+                                <TextView
+                                    android:id="@+id/PISongUniversalRank"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=""
+                                    android:textSize="25sp">
+
+                                </TextView>
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/PISongArtist"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Artist"
+                                android:textSize="20sp">
+
+                            </TextView>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginBottom="15dp"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <SeekBar
+                                    android:id="@+id/PISeekBar"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="10dp"
+                                    android:layout_marginBottom="10dp"
+                                    android:progressTint="#ffffff">
+
+                                </SeekBar>
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:layout_marginBottom="5dp"
+                                    android:orientation="horizontal">
+
+                                    <RelativeLayout
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content">
+
+                                        <TextView
+                                            android:id="@+id/PICurrentTime"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_alignParentLeft="true"
+                                            android:layout_marginLeft="10dp"
+                                            android:text="0:00"
+                                            android:textSize="18sp">
+
+                                        </TextView>
+
+                                        <TextView
+                                            android:id="@+id/PITotalTime"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_alignParentRight="true"
+                                            android:layout_marginRight="10dp"
+                                            android:text="0:00"
+                                            android:textSize="18sp">
+
+                                        </TextView>
+
+                                    </RelativeLayout>
+
+                                </LinearLayout>
+
+                                <TextView
+                                    android:id="@+id/PIPercentageComplete"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="5dp"
+                                    android:layout_marginBottom="5dp"
+                                    android:text="100%"
+                                    android:textSize="18sp">
+
+                                </TextView>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_horizontal"
+                                    android:layout_marginTop="5dp"
+                                    android:layout_marginBottom="15dp"
+                                    android:gravity="center">
+
+                                    <ImageView
+                                        android:id="@+id/PILastSong"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginLeft="10dp"
+                                        android:layout_marginRight="10dp"
+                                        android:src="@drawable/ic_baseline_skip_previous_24">
+
+                                    </ImageView>
+
+                                    <ImageView
+                                        android:id="@+id/PIRewind"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginLeft="10dp"
+                                        android:layout_marginRight="10dp"
+                                        android:src="@drawable/ic_baseline_replay_10_24">
+
+                                    </ImageView>
+
+                                    <ImageView
+                                        android:id="@+id/PIPlayPause"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginLeft="10dp"
+                                        android:layout_marginRight="10dp"
+                                        android:clickable="true"
+                                        android:src="@drawable/ic_baseline_play_arrow_24">
+
+                                    </ImageView>
+
+                                    <ImageView
+                                        android:id="@+id/PIForward"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginLeft="10dp"
+                                        android:layout_marginRight="10dp"
+                                        android:src="@drawable/ic_baseline_forward_10_24">
+
+                                    </ImageView>
+
+                                    <ImageView
+                                        android:id="@+id/PINextSong"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginLeft="10dp"
+                                        android:layout_marginRight="10dp"
+                                        android:src="@drawable/ic_baseline_skip_next_24">
+
+                                    </ImageView>
+
+                                </LinearLayout>
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </ScrollView>
+
+                </LinearLayout>
+
+                <!--for tab 2-->
+                <LinearLayout
+                    android:id="@+id/Queue"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <ExpandableListView
+                        android:id="@+id/QueueList"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                    </ExpandableListView>
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+    </TabHost>
+
+</LinearLayout>

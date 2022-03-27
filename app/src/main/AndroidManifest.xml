@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.musicapp">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:icon="@drawable/dna_logo_circular"
+        android:label="Project Adenine"
+        android:requestLegacyExternalStorage="true"
+        android:usesCleartextTraffic="true"
+        android:roundIcon="@drawable/dna_logo_circular"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.NoActionBar">
+        <service
+            android:name="com.example.dnamusicapp.SaveSongData"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name="com.example.dnamusicapp.Settings" />
+        <activity
+            android:name="com.example.dnamusicapp.CreateNewSkin"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.dnamusicapp.CreateNewPlaylist"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.dnamusicapp.InfoDisplay"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.dnamusicapp.MusicLibrarySong"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.dnamusicapp.MusicPlayer"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.dnamusicapp.TMADisplay"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.dnamusicapp.PlaylistSongView"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.dnamusicapp.AllPlaylistInArea"
+            android:screenOrientation="portrait" />
+
+        <service android:name="com.example.dnamusicapp.AudioPlayer" />
+
+        <activity
+            android:name="com.example.dnamusicapp.PlaylistView"
+
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.dnamusicapp.FullscreenActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".PlaylistSongView">
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginRight="15dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/PlaylistImage"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:src="@drawable/dfltplayimg">
+
+                    </ImageView>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/PlaylistNameText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Playlist Name"
+                            android:textSize="30sp">
+
+                        </TextView>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:orientation="vertical">
+
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/NumOfSongs"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Song Num"
+                                    android:textSize="20sp">
+
+                                </TextView>
+
+                                <TextView
+                                    android:id="@+id/PlaylistLength"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginLeft="20dp"
+                                    android:text="Playlist Length"
+                                    android:textSize="20sp">
+
+
+                                </TextView>
+
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:orientation="horizontal">
+
+                                <!--
+                                <Button
+                                    android:id="@+id/SortButton"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Sort">
+
+                                </Button>
+                                -->
+
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp">
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginTop="10dp">
+
+                        <LinearLayout
+                            android:id="@+id/SortTypeDefault"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+
+                        </LinearLayout>
+
+                    </HorizontalScrollView>
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginBottom="10dp">
+
+                        <LinearLayout
+                            android:id="@+id/ObjectTypeDefault"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+
+                        </LinearLayout>
+
+                    </HorizontalScrollView>
+
+                    <!--Tab widget to select the tab
+
+                   <LinearLayout
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content"
+                       android:layout_marginTop="10dp"
+                       android:orientation="horizontal">
+
+
+
+
+
+
+                       <TextView
+                           android:id="@+id/TagsHorizonText"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:text="Tags:"
+                           android:textSize="20sp"
+                           android:clickable="true">
+
+                       </TextView>
+
+                       <HorizontalScrollView
+                           android:layout_width="match_parent"
+                           android:layout_height="match_parent">
+
+                           <LinearLayout
+                               android:id="@+id/TagsHorizontalScrollView"
+                               android:layout_width="match_parent"
+                               android:layout_height="match_parent"
+                               android:orientation="horizontal">
+
+                           </LinearLayout>
+
+                       </HorizontalScrollView>
+
+                   </LinearLayout>
+
+                   <LinearLayout
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content"
+                       android:layout_marginTop="10dp"
+                       android:orientation="horizontal">
+
+
+                       <TextView
+                           android:id="@+id/MoodHorizonText"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:text="Moods:"
+                           android:textSize="20sp"
+                           android:clickable="true">
+
+                       </TextView>
+
+                       <HorizontalScrollView
+                           android:layout_width="match_parent"
+                           android:layout_height="match_parent">
+
+                           <LinearLayout
+                               android:id="@+id/MoodHorizontalScrollView"
+                               android:layout_width="match_parent"
+                               android:layout_height="match_parent"
+                               android:orientation="horizontal">
+
+                           </LinearLayout>
+
+                       </HorizontalScrollView>
+
+                   </LinearLayout>
+
+                   <LinearLayout
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content"
+                       android:layout_marginTop="10dp"
+                       android:orientation="horizontal"
+                       android:layout_marginBottom="10dp">
+
+
+                       <TextView
+                           android:id="@+id/PRArtistHorizonText"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:text="PR Artists:"
+                           android:textSize="20sp"
+                           android:clickable="true">
+
+                       </TextView>
+
+                       <HorizontalScrollView
+                           android:layout_width="match_parent"
+                           android:layout_height="match_parent">
+
+                           <LinearLayout
+                               android:id="@+id/ArtistHorizontalScrollView"
+                               android:layout_width="match_parent"
+                               android:layout_height="match_parent"
+                               android:orientation="horizontal">
+
+                           </LinearLayout>
+
+                       </HorizontalScrollView>
+
+
+                    </LinearLayout>
+                    -->
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>

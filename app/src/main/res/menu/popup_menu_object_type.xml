@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+
+    <item
+        android:id="@+id/AlbumPopupMenuObject"
+        android:title="Album"
+        >
+    </item>
+
+    <item
+        android:id="@+id/ArtistPopupMenuObject"
+        android:title="Artist"
+        >
+    </item>
+
+    <item
+        android:id="@+id/SongPopupMenuObject"
+        android:title="Song"
+        >
+    </item>
+
+    <item
+        android:id="@+id/PlaylistRankPopupMenuObject"
+        android:title="Playlist Rank"
+        >
+    </item>
+
+    <item
+        android:id="@+id/UniversalRankPopupMenuObject"
+        android:title="Universal Rank"
+        >
+    </item>
+
+    <item
+        android:id="@+id/MoodPopupMenuObject"
+        android:title="Mood"
+        >
+    </item>
+
+    <item
+        android:id="@+id/TagPopupMenuObject"
+        android:title="Tag"
+        >
+    </item>
+
+
+</menu>
