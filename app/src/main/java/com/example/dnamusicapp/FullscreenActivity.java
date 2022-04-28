@@ -2,9 +2,11 @@ package com.example.dnamusicapp;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -16,6 +18,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -25,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -70,6 +74,8 @@ public class FullscreenActivity extends AppCompatActivity {
    // ProgressBar FirstProgress;
    // ProgressBar SecondProgress;
     ImageView Temp;
+    SongClass Unique = new SongClass();
+
 
 
     public AntennaMessage AntennaReceiver = new AntennaMessage();
@@ -88,6 +94,7 @@ public class FullscreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
+
 
 
         Background = findViewById(R.id.Background);
@@ -139,6 +146,77 @@ public class FullscreenActivity extends AppCompatActivity {
             }
         });
         //DetectFiles();
+    }
+
+    public void AskPermission () {
+
+        if (!Permissions.StoragePermissionGranted(this)) {
+            new AlertDialog.Builder(this).setTitle("Access Storage Permission").setMessage("This App requires permissions to access your Music Files.").setPositiveButton("Allow", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    getPermission();
+                }
+            }).setNegativeButton("Deny", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            }).setIcon(R.drawable.dna_logo_circular).show();
+        } else {
+            Toast.makeText(this, "Already have Permission", Toast.LENGTH_LONG).show();
+        }
+
+
+    }
+
+    private void getPermission () {
+        //Settings.ACTION_MANAGE_APP_FILES_ACCESS_PERMISSION
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                intent.setData(uri);
+                startActivity(intent);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                startActivity(intent);
+            }
+
+        } else {
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},101);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {           //Asks for permission and shit
+        switch (requestCode) {
+            case MY_PERMISSION_REQUEST: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(FullscreenActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(this, "Permission Granted (ML)", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(this, "Permission NOT Granted (ML)", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                return;
+            }
+        }
+
+
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (grantResults.length>0) {
+            if (requestCode==101) {
+                boolean readExt = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                if (!readExt) {
+                    getPermission();
+                }
+            }
+        }
     }
 
     public void AntennaSetup() {
@@ -1482,22 +1560,5 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {           //Asks for permission and shit
-        switch (requestCode) {
-            case MY_PERMISSION_REQUEST: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (ContextCompat.checkSelfPermission(FullscreenActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(this, "Permission Granted (ML)", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(this, "Permission NOT Granted (ML)", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                return;
-            }
-        }
 
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
 }

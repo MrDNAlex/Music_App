@@ -652,7 +652,7 @@ public class PlaylistView extends AppCompatActivity {
                 AccountSettings.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent Settings = new Intent(getApplicationContext(), Settings.class);
+                        Intent Settings = new Intent(getApplicationContext(), SettingsFiles.class);
                         startActivity(Settings);
                     }
                 });

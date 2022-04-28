@@ -50,26 +50,28 @@ public class SongClass {
     Fav End
 */
 
-    boolean Universal;
-    String SongName;
-    String ArtistName;
-    String AlbumName;
-    String SongPath;
-    String AlbumArt;
-    int UniversalRank;
-    int PlaylistRank;
-    String UniversalMood; //Make this into array probably
-    String UniversalTag;
-    String PlaylistMood;
-    String PlaylistTag;
-    int SongLength;
-    int UniversalTimesPlayed;
-    int UniversalTimePlayed;
-    int PlaylistTimesPlayed;
-    int PlaylistTimePlayed;
-    int LastTimePlayed;
-    String AlbumID; //Maybe int
-    String ArtistID; //Maybe int
+    public boolean Universal;
+    public String SongName;
+    public String ArtistName;
+    public String AlbumName;
+    public String SongPath;
+    public String AlbumArt;
+    public int UniversalRank;
+    public int PlaylistRank;
+    public String UniversalMood; //Make this into array probably
+    public String UniversalTag; //Make this into array probably
+    public String PlaylistMood; //Make this into array probably
+    public String PlaylistTag; //Make this into array probably
+    public int SongLength;
+    public int UniversalTimesPlayed;
+    public int UniversalTimePlayed;
+    public int PlaylistTimesPlayed;
+    public int PlaylistTimePlayed;
+    public int LastTimePlayed;
+    public String AlbumID; //Maybe int
+    public String ArtistID; //Maybe int
+    public String FileSongID;
+    public int Colours; //Int, array, Background Colour
 
 
 

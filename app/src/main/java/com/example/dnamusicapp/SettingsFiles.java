@@ -23,7 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 
-public class Settings extends AppCompatActivity {
+public class SettingsFiles extends AppCompatActivity {
+
 
 
     Button SaveButton;

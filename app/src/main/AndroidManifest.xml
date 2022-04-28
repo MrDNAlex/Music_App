@@ -24,7 +24,7 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name="com.example.dnamusicapp.Settings" />
+        <activity android:name="com.example.dnamusicapp.SettingsFiles" />
         <activity
             android:name="com.example.dnamusicapp.CreateNewSkin"
             android:screenOrientation="portrait" />
