@@ -14,12 +14,16 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaMetadataRetriever;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.Size;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -28,7 +32,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -37,20 +40,26 @@ import androidx.core.content.ContextCompat;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.musicapp.R;
+import com.google.android.gms.common.util.ArrayUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
+//Import simple EXOPLAYER library for the youtube music file playing
 
 public class FullscreenActivity extends AppCompatActivity {
 
@@ -70,12 +79,15 @@ public class FullscreenActivity extends AppCompatActivity {
     ArrayList<ArrayList<String>> UniqueDataToStorage = new ArrayList<ArrayList<String>>();//Title, Artist, Duration, Path, Album, ArtistID, AlbumID, AlbumArt, Album Artist Name, Album Artist ID
     String PlayVid = "DNA Music";
     VideoView IntroVid;
+    String[] FileTypes = {".mp3", ".wav", ".flac", ".aac", ".m4a"};
 
-   // ProgressBar FirstProgress;
-   // ProgressBar SecondProgress;
+
+    // ProgressBar FirstProgress;
+    // ProgressBar SecondProgress;
     ImageView Temp;
-    SongClass Unique = new SongClass();
-
+    ArrayList<SongClass> Songs = new ArrayList<SongClass>();
+    ArrayList<AlbumClass> Albums = new ArrayList<AlbumClass>();
+    ArrayList<ArtistClass> Artists = new ArrayList<ArtistClass>();
 
 
     public AntennaMessage AntennaReceiver = new AntennaMessage();
@@ -101,7 +113,7 @@ public class FullscreenActivity extends AppCompatActivity {
         Message = findViewById(R.id.Message);
         IntroVid = findViewById(R.id.IntroVideoView);
         //FirstProgress = findViewById(R.id.FirstProgress);
-       // SecondProgress = findViewById(R.id.SecondProgress);
+        // SecondProgress = findViewById(R.id.SecondProgress);
         Temp = findViewById(R.id.Temp);
 
         AntennaSetup();
@@ -141,14 +153,15 @@ public class FullscreenActivity extends AppCompatActivity {
         IntroVid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ActivityCompat.requestPermissions( FullscreenActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                //AskPermission();
+                ActivityCompat.requestPermissions(FullscreenActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
                 OpenPlaylistView();
             }
         });
         //DetectFiles();
     }
 
-    public void AskPermission () {
+    public void AskPermission() {
 
         if (!Permissions.StoragePermissionGranted(this)) {
             new AlertDialog.Builder(this).setTitle("Access Storage Permission").setMessage("This App requires permissions to access your Music Files.").setPositiveButton("Allow", new DialogInterface.OnClickListener() {
@@ -169,7 +182,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
     }
 
-    private void getPermission () {
+    private void getPermission() {
         //Settings.ACTION_MANAGE_APP_FILES_ACCESS_PERMISSION
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
@@ -185,7 +198,7 @@ public class FullscreenActivity extends AppCompatActivity {
             }
 
         } else {
-            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},101);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 101);
         }
     }
 
@@ -206,11 +219,10 @@ public class FullscreenActivity extends AppCompatActivity {
         }
 
 
-
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (grantResults.length>0) {
-            if (requestCode==101) {
+        if (grantResults.length > 0) {
+            if (requestCode == 101) {
                 boolean readExt = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                 if (!readExt) {
                     getPermission();
@@ -292,8 +304,8 @@ public class FullscreenActivity extends AppCompatActivity {
     }
 
     public void writeJSONDefaultData() {
-       // FirstProgress.setVisibility(View.VISIBLE);
-       // SecondProgress.setVisibility(View.VISIBLE);
+        // FirstProgress.setVisibility(View.VISIBLE);
+        // SecondProgress.setVisibility(View.VISIBLE);
         int NumOfFiles = 7;
         for (int i = 0; i < NumOfFiles; i++) {
             JSONObject Json = new JSONObject();
@@ -362,7 +374,7 @@ public class FullscreenActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-          //  FirstProgress.setProgress(i/7);
+            //  FirstProgress.setProgress(i/7);
         }
         Message.setText("Good to Go");
     }
@@ -462,14 +474,105 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     }
 
+    public ArrayList<File> getFiles (File dir) {
+        ArrayList<File> Files = new ArrayList<File>();
+        for (File path: dir.listFiles()) {
+            if (path.isFile()) {
+                Files.add(path);
+            } else if (path.isDirectory()) {
+                Files.addAll(getFiles(path));
+            }
+        }
+        return Files;
+    }
+
     @SuppressLint("Range")
     @RequiresApi(api = Build.VERSION_CODES.Q)
     public void getAllMusic() {   //gets all music inside Music storage Library         String[] SongTitle, String[] Artist, String[] Album, int[] SongDur
 
-        String[] projection = {MediaStore.Audio.AudioColumns.TITLE, MediaStore.Audio.AudioColumns.ARTIST, MediaStore.Audio.AudioColumns.DURATION, MediaStore.Audio.Media.DATA, MediaStore.Audio.AudioColumns.ALBUM, MediaStore.Audio.AudioColumns.ARTIST_ID, MediaStore.Audio.AudioColumns.ALBUM_ID};
-        String selection = MediaStore.Audio.AudioColumns.IS_MUSIC;
-       // String selection = null;
-        String sortOrder = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+
+            int rip = 0;
+
+            //Collect all files under directory
+            File directory = new File(String.valueOf(Environment.getExternalStoragePublicDirectory("Music")));
+            File[] mp3files = directory.listFiles();
+            ArrayList<File> Files = new ArrayList<File>();
+            for (File file: mp3files) {
+                if (file.isFile()) {
+                    Files.add(file);
+                } else if (file.isDirectory()) {
+                    Files.addAll(getFiles(file));
+                }
+            }
+            //Remove all unwanted file types
+            ArrayList<File> MusicFiles = new ArrayList<File>();
+            for (File file : Files) {
+                if (file.getAbsolutePath().endsWith(FileTypes[0])) {
+                    MusicFiles.add(file);
+                } else if (file.getAbsolutePath().endsWith(FileTypes[1])) {
+                    MusicFiles.add(file);
+                } else if (file.getAbsolutePath().endsWith(FileTypes[2])) {
+                    MusicFiles.add(file);
+                } else if (file.getAbsolutePath().endsWith(FileTypes[3])) {
+                    MusicFiles.add(file);
+                } else if (file.getAbsolutePath().endsWith(FileTypes[4])) {
+                    MusicFiles.add(file);
+                }
+            }
+
+
+            //Retrieve Data
+            int num = 0;
+            for (File file : MusicFiles) {
+                Songs.add(new SongClass());
+                MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+                metaRetriever.setDataSource(file.toString());
+
+                String Title = "N/A";
+                int Length = 0;
+                String Artist = "N/A";
+                String Album = "N/A";
+
+                try {
+                    Title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                    Length = Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+                    Artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                    Album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+
+                    //byte[] AlbumArt = metaRetriever.getEmbeddedPicture();
+                    //Bitmap bitmap = BitmapFactory.decodeByteArray(AlbumArt, 0, AlbumArt.length);
+
+                    Songs.get(num).SongName = Title;
+                    Songs.get(num).SongLength = Integer.valueOf(Length);
+                    Songs.get(num).SongPath = file.toString();
+                    Songs.get(num).ArtistName = Artist;
+                    Songs.get(num).AlbumName = Album;
+
+                } catch (Exception e) {
+                    Songs.get(num).SongName = Title;
+                    Songs.get(num).SongLength = Integer.valueOf(Length);
+                    Songs.get(num).SongPath = file.toString();
+                    Songs.get(num).ArtistName = Artist;
+                    Songs.get(num).AlbumName = Album;
+                }
+                num++;
+            }
+
+            //Make Album and Artist Data types
+
+
+
+
+
+
+            int idk = 0;
+
+        } else {
+            String[] projection = {MediaStore.Audio.AudioColumns.TITLE, MediaStore.Audio.AudioColumns.ARTIST, MediaStore.Audio.AudioColumns.DURATION, MediaStore.Audio.Media.DATA, MediaStore.Audio.AudioColumns.ALBUM, MediaStore.Audio.AudioColumns.ARTIST_ID, MediaStore.Audio.AudioColumns.ALBUM_ID};
+            String selection = MediaStore.Audio.AudioColumns.IS_MUSIC;
+            // String selection = null;
+            String sortOrder = null;
         /*
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             sortOrder = null;
@@ -478,145 +581,193 @@ public class FullscreenActivity extends AppCompatActivity {
         }
 
          */
-        sortOrder = MediaStore.Audio.Albums.ALBUM;
+            sortOrder = MediaStore.Audio.Albums.ALBUM;
 
-       // File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
-       // File[] allFiles = musicDirectory.listFiles();
+            // File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+            // File[] allFiles = musicDirectory.listFiles();
 
-
-       //MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-
-        for (int i = 0; i < projection.length; i++) {
-            AllData.add(new ArrayList<String>());
-            int Length;
-            Cursor cursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null, sortOrder);
-           // Cursor songCursorInternal = getContentResolver().query(MediaStore.Audio.Media.INTERNAL_CONTENT_URI, projection, selection, null, sortOrder);
-           // Cursor cursor = new MergeCursor(new Cursor[]{songCursor, songCursorInternal});
-
-            if (cursor != null) {
-                int num = 0;
-                while (cursor.moveToNext()) {
-
-                    //Dont forget to add option to /1000 for the duration version********
-                    if (projection[i].equals(MediaStore.Audio.AudioColumns.DURATION)) {
-                        Length = cursor.getInt(cursor.getColumnIndex((projection[i]))) / 1000;
-                        AllData.get(i).add("" + Length);
-                    } else {
-                        AllData.get(i).add(cursor.getString(cursor.getColumnIndex(projection[i])));
-                    }
-                    num++;
-                 //   SecondProgress.setProgress(num/projection.length);
-                }
-            }
-        }
-
-        for (int i = 0; i < projection.length; i++) {
-            UniqueDataToStorage.add(new ArrayList<String>());
-        }
-        //Make the UniqueDataToStorage Arraylist
-        //Alright so this part fucking works Now just translate all it's fucking garbage into the App Storage to save as JSON File Nov 10 Morning
-        for (int i = 0; i < AllData.get(0).size(); i++) {
-            for (int e = 0; e < projection.length; e++) {
-                switch (e) {
-                    case 1:
-                        if (!UniqueDataToStorage.get(e).contains(AllData.get(e).get(i))) {
-                            UniqueDataToStorage.get(e).add(AllData.get(e).get(i));
-                        } else {
-                            //Double check to see if it's a different Album (Looking at you Alone - Single Alan Walker, Marshmello)
-                            if (!UniqueDataToStorage.get(5).contains(AllData.get(5).get(i))) {
-                                UniqueDataToStorage.get(e).add(AllData.get(e).get(i));
-                            }
-                        }
-                        break;
-
-                    case 5:
-                        if (!UniqueDataToStorage.get(e).contains(AllData.get(e).get(i))) {
-                            UniqueDataToStorage.get(e).add(AllData.get(e).get(i));
-                        } else {
-                            //Double check to see if it's a different Album (Looking at you Alone - Single Alan Walker, Marshmello)
-                            if (!UniqueDataToStorage.get(5).contains(AllData.get(5).get(i))) {
-                                UniqueDataToStorage.get(e).add(AllData.get(e).get(i));
-                            }
-                        }
-                        break;
-                    default:
-                        if (!UniqueDataToStorage.get(e).contains(AllData.get(e).get(i))) {
-                            UniqueDataToStorage.get(e).add(AllData.get(e).get(i));
-                        } else {
-                            //Double check to see if it's a different Album (Looking at you Alone - Single Alan Walker, Marshmello)
-                            if (!UniqueDataToStorage.get(6).contains(AllData.get(6).get(i))) {
-                                UniqueDataToStorage.get(e).add(AllData.get(e).get(i));
-                            }
-                        }
-                        break;
-                }
-            }
-        }
-
-        //
-        //Load Album Art
-        //
-        String[] ArtProj = {MediaStore.Audio.Albums.ALBUM_ART, MediaStore.Audio.Albums.ARTIST, MediaStore.Audio.Albums.ARTIST_ID};
-
-        for (int i = 0; i < ArtProj.length; i++) {
-            UniqueDataToStorage.add(new ArrayList<String>());
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            for (int i = 0; i < UniqueDataToStorage.get(6).size(); i ++) {
-                UniqueDataToStorage.get(7).add(ContentUris.withAppendedId(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, Long.parseLong(UniqueDataToStorage.get(6).get(i))).toString());
-            }
-        }
-
-        Cursor cursor = getContentResolver().query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, ArtProj, null, null, sortOrder);
-        //Cursor ArtCursorInternal = getContentResolver().query(MediaStore.Audio.Albums.INTERNAL_CONTENT_URI, ArtProj, null, null, sortOrder);
-       // Cursor cursor = new MergeCursor(new Cursor[]{ArtCursor, ArtCursorInternal});
+/*
+        //MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        int Length;
+        Cursor cursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null, sortOrder);
         if (cursor != null) {
             int num = 0;
             while (cursor.moveToNext()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                Songs.add(new SongClass());
+                Songs.get(num).SongName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.TITLE));
+                Songs.get(num).ArtistName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ARTIST));
+                Songs.get(num).AlbumName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ALBUM));
+                Songs.get(num).SongPath = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.DATA));
+                //Songs.get(num).AlbumArt = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.TITLE);
+                Songs.get(num).SongLength = (cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.DURATION)) / 1000);
+                Songs.get(num).AlbumID = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ALBUM_ID));
+                Songs.get(num).ArtistID = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ARTIST_ID));
 
-                } else {
-                    UniqueDataToStorage.get(7).add(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART)));
-                }
-                UniqueDataToStorage.get(8).add(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ARTIST)));
-                UniqueDataToStorage.get(9).add(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ARTIST_ID)));
+                // cursor.getString(cursor.getColumnIndex(null));
                 num++;
-                //SecondProgress.setProgress(num/ArtProj.length);
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            AllData.add(new ArrayList<String>());
-            for (int i = 0; i < AllData.get(0).size(); i++) {
-                AllData.get(7).add(ContentUris.withAppendedId(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, Long.parseLong(AllData.get(6).get(i))).toString());
-            }
-        } else {
-            AllData.add(new ArrayList<String>());
-            for (int i = 0; i < AllData.get(0).size(); i++) {
-                for (int e = 0; e < UniqueDataToStorage.get(6).size(); e++) {
-                    if (AllData.get(6).get(i).equals(UniqueDataToStorage.get(6).get(e))) {
-                        AllData.get(7).add(UniqueDataToStorage.get(7).get(e));
+ */
+
+
+            for (int i = 0; i < projection.length; i++) {
+
+                //Storage.add(new SongClass());
+
+                AllData.add(new ArrayList<String>());
+                int Length;
+                Cursor cursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null, sortOrder);
+                // Cursor songCursorInternal = getContentResolver().query(MediaStore.Audio.Media.INTERNAL_CONTENT_URI, projection, selection, null, sortOrder);
+                // Cursor cursor = new MergeCursor(new Cursor[]{songCursor, songCursorInternal});
+
+                if (cursor != null) {
+                    int num = 0;
+                    while (cursor.moveToNext()) {
+
+                        //Dont forget to add option to /1000 for the duration version********
+                        if (projection[i].equals(MediaStore.Audio.AudioColumns.DURATION)) {
+                            Length = cursor.getInt(cursor.getColumnIndex((projection[i]))) / 1000;
+                            AllData.get(i).add("" + Length);
+                        } else {
+                            AllData.get(i).add(cursor.getString(cursor.getColumnIndex(projection[i])));
+                        }
+                        num++;
+                        //   SecondProgress.setProgress(num/projection.length);
                     }
                 }
             }
+
+ /*
+int num = 0;
+        for (int i = 0; i < Songs.size(); i ++) {
+            if (!Albums.contains(Songs.get(i).AlbumID)) {
+                Albums.add(new AlbumClass());
+                Albums.get(num).AlName = Songs.get(i).AlbumName;
+                Albums.get(num).ArName = Songs.get(i).ArtistName;
+                Albums.get(num).AlbumArt = Songs.get(i).AlbumArt;
+                Albums.get(num).AlbumID = Songs.get(i).AlbumID;
+                Albums.get(num).ArtistID = Songs.get(i).Ar;
+
+
+                        num ++;
+            }
+
+
         }
 
-        //Alone - Single by Alan Walker and Marshmello repeating 4 times find out why Nov 9 or Nov 10
 
-        //Adds the Album Image Array
 
-        //I guess we don't need this part, it's too hard to figure out, keep in code though since you may figure it out one day
-        //Convert everything to Ints I guess?
-        //for (int i = 0; i < AllData.size(); i++) {
-        //    for (int e = 0; e < AllData.get(i).size(); e++) {
-        //        for (int g = 0; g < UniqueDataToStorage.get(i).size(); g++) {
-        //            if (AllData.get(i).get(e).equals(UniqueDataToStorage.get(i).get(g))) {
-        //                AllData.get(i).set(e, "" + g);
-        //            }
-        //        }
-        //    }
-        //}
+  */
+
+            for (int i = 0; i < projection.length; i++) {
+                UniqueDataToStorage.add(new ArrayList<String>());
+            }
+            //Make the UniqueDataToStorage Arraylist
+            //Alright so this part fucking works Now just translate all it's fucking garbage into the App Storage to save as JSON File Nov 10 Morning
+            for (int i = 0; i < AllData.get(0).size(); i++) {
+                for (int e = 0; e < projection.length; e++) {
+                    switch (e) {
+                        case 1:
+                            if (!UniqueDataToStorage.get(e).contains(AllData.get(e).get(i))) {
+                                UniqueDataToStorage.get(e).add(AllData.get(e).get(i));
+                            } else {
+                                //Double check to see if it's a different Album (Looking at you Alone - Single Alan Walker, Marshmello)
+                                if (!UniqueDataToStorage.get(5).contains(AllData.get(5).get(i))) {
+                                    UniqueDataToStorage.get(e).add(AllData.get(e).get(i));
+                                }
+                            }
+                            break;
+
+                        case 5:
+                            if (!UniqueDataToStorage.get(e).contains(AllData.get(e).get(i))) {
+                                UniqueDataToStorage.get(e).add(AllData.get(e).get(i));
+                            } else {
+                                //Double check to see if it's a different Album (Looking at you Alone - Single Alan Walker, Marshmello)
+                                if (!UniqueDataToStorage.get(5).contains(AllData.get(5).get(i))) {
+                                    UniqueDataToStorage.get(e).add(AllData.get(e).get(i));
+                                }
+                            }
+                            break;
+                        default:
+                            if (!UniqueDataToStorage.get(e).contains(AllData.get(e).get(i))) {
+                                UniqueDataToStorage.get(e).add(AllData.get(e).get(i));
+                            } else {
+                                //Double check to see if it's a different Album (Looking at you Alone - Single Alan Walker, Marshmello)
+                                if (!UniqueDataToStorage.get(6).contains(AllData.get(6).get(i))) {
+                                    UniqueDataToStorage.get(e).add(AllData.get(e).get(i));
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+
+            //
+            //Load Album Art
+            //
+            String[] ArtProj = {MediaStore.Audio.Albums.ALBUM_ART, MediaStore.Audio.Albums.ARTIST, MediaStore.Audio.Albums.ARTIST_ID};
+
+            for (int i = 0; i < ArtProj.length; i++) {
+                UniqueDataToStorage.add(new ArrayList<String>());
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                for (int i = 0; i < UniqueDataToStorage.get(6).size(); i++) {
+                    UniqueDataToStorage.get(7).add(ContentUris.withAppendedId(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, Long.parseLong(UniqueDataToStorage.get(6).get(i))).toString());
+                }
+            }
+
+            Cursor cursor = getContentResolver().query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, ArtProj, null, null, sortOrder);
+            //Cursor ArtCursorInternal = getContentResolver().query(MediaStore.Audio.Albums.INTERNAL_CONTENT_URI, ArtProj, null, null, sortOrder);
+            // Cursor cursor = new MergeCursor(new Cursor[]{ArtCursor, ArtCursorInternal});
+            if (cursor != null) {
+                int num = 0;
+                while (cursor.moveToNext()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+                    } else {
+                        UniqueDataToStorage.get(7).add(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART)));
+                    }
+                    UniqueDataToStorage.get(8).add(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ARTIST)));
+                    UniqueDataToStorage.get(9).add(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ARTIST_ID)));
+                    num++;
+                    //SecondProgress.setProgress(num/ArtProj.length);
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                AllData.add(new ArrayList<String>());
+                for (int i = 0; i < AllData.get(0).size(); i++) {
+                    AllData.get(7).add(ContentUris.withAppendedId(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, Long.parseLong(AllData.get(6).get(i))).toString());
+                }
+            } else {
+                AllData.add(new ArrayList<String>());
+                for (int i = 0; i < AllData.get(0).size(); i++) {
+                    for (int e = 0; e < UniqueDataToStorage.get(6).size(); e++) {
+                        if (AllData.get(6).get(i).equals(UniqueDataToStorage.get(6).get(e))) {
+                            AllData.get(7).add(UniqueDataToStorage.get(7).get(e));
+                        }
+                    }
+                }
+            }
+
+            //Alone - Single by Alan Walker and Marshmello repeating 4 times find out why Nov 9 or Nov 10
+
+            //Adds the Album Image Array
+
+            //I guess we don't need this part, it's too hard to figure out, keep in code though since you may figure it out one day
+            //Convert everything to Ints I guess?
+            //for (int i = 0; i < AllData.size(); i++) {
+            //    for (int e = 0; e < AllData.get(i).size(); e++) {
+            //        for (int g = 0; g < UniqueDataToStorage.get(i).size(); g++) {
+            //            if (AllData.get(i).get(e).equals(UniqueDataToStorage.get(i).get(g))) {
+            //                AllData.get(i).set(e, "" + g);
+            //            }
+            //        }
+            //    }
+            //}
+        }
     }
 
     public void masterSongDataFile(JSONObject Json) {
@@ -702,7 +853,7 @@ public class FullscreenActivity extends AppCompatActivity {
             ConstantData.put(AllData.get(6).get(i)); //AlbumID
             ConstantData.put(AllData.get(5).get(i)); //ArtistID
             ConstantData.put("None");                //Skin active
-               // ConstantData.put(null); //Background Colour
+            // ConstantData.put(null); //Background Colour
 
             //
             //ConstantData.put(0);                     //Fav Start
@@ -711,7 +862,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
             TryCatch(Json, ID, ConstantData);
 
-          //  SecondProgress.setProgress((i/AllData.get(0).size())/3);
+            //  SecondProgress.setProgress((i/AllData.get(0).size())/3);
         }
 
         for (int i = 0; i < AllData.get(0).size(); i++) {           //generates memory of how long you listen to the songs
@@ -882,7 +1033,7 @@ public class FullscreenActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-           // SecondProgress.setProgress(2/3+(i/UniqueDataToStorage.get(4).size())/3);
+            // SecondProgress.setProgress(2/3+(i/UniqueDataToStorage.get(4).size())/3);
         }
     }
 
@@ -1143,7 +1294,7 @@ public class FullscreenActivity extends AppCompatActivity {
             ConstantData.put(AllData.get(6).get(i)); //Song AlbumID
             ConstantData.put(AllData.get(5).get(i)); //ArtistID
             ConstantData.put("None");             //Active Skin ID
-               // ConstantData.put(null); //Background Colour
+            // ConstantData.put(null); //Background Colour
 
             // ConstantData.put(0);                  //Fav start
             //ConstantData.put(AllData.get(2).get(i));  //Fav End
@@ -1498,7 +1649,7 @@ public class FullscreenActivity extends AppCompatActivity {
         return Pos;
     }
 
-    public void saveColours () {
+    public void saveColours() {
 
         JSONObject Json = new JSONObject();
 
@@ -1506,7 +1657,7 @@ public class FullscreenActivity extends AppCompatActivity {
         JSONArray GreenCol = new JSONArray();
         JSONArray BlueCol = new JSONArray();
 
-        for (int i = 0; i < CLBRed.length; i ++) {
+        for (int i = 0; i < CLBRed.length; i++) {
             RedCol.put(CLBRed[i]);
             GreenCol.put(CLBGreen[i]);
             BlueCol.put(CLBBlue[i]);
@@ -1521,7 +1672,6 @@ public class FullscreenActivity extends AppCompatActivity {
         }
 
         saveToStorage("Colours", Json);
-
 
 
     }

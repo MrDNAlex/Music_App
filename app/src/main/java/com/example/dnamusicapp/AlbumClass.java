@@ -38,11 +38,11 @@ SIDx, SIDx,
     public int UniversalTimesPlayed;
     public int UniversalTimePlayed;
     public String LastTimePlayed;
-    public int AlbumID;
-    public int ArtistID;
+    public String AlbumID;
+    public String ArtistID;
     public String SkinID;
     public String FileID;
-    public String Songs;
+    public String Songs; //Array
     public int Colours; //Int, array, Background Colour
 
 
