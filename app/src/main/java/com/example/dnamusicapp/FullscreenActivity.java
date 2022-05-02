@@ -705,19 +705,16 @@ public class FullscreenActivity extends AppCompatActivity {
                 //}
             }
 
+            num = 0;
             for (SongClass song : Songs) {
                 if (containsElementArtist(Artists, song.ArtistName)) {
                     //Do nothing
                 } else {
                     Artists.add(new ArtistClass());
                     Artists.get(num).AName = song.ArtistName;
-
+                    num++;
                 }
-
-
             }
-
-
 
 
             int idk1 = 0;
