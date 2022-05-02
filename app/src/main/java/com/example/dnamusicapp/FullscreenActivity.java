@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.sax.Element;
 import android.util.Log;
 import android.util.Size;
 import android.view.View;
@@ -57,6 +58,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 
 //Import simple EXOPLAYER library for the youtube music file playing
@@ -108,7 +111,6 @@ public class FullscreenActivity extends AppCompatActivity {
         setContentView(R.layout.activity_fullscreen);
 
 
-
         Background = findViewById(R.id.Background);
         Message = findViewById(R.id.Message);
         IntroVid = findViewById(R.id.IntroVideoView);
@@ -155,77 +157,28 @@ public class FullscreenActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //AskPermission();
                 ActivityCompat.requestPermissions(FullscreenActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-                OpenPlaylistView();
+
             }
         });
         //DetectFiles();
     }
 
-    public void AskPermission() {
-
-        if (!Permissions.StoragePermissionGranted(this)) {
-            new AlertDialog.Builder(this).setTitle("Access Storage Permission").setMessage("This App requires permissions to access your Music Files.").setPositiveButton("Allow", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    getPermission();
-                }
-            }).setNegativeButton("Deny", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                }
-            }).setIcon(R.drawable.dna_logo_circular).show();
-        } else {
-            Toast.makeText(this, "Already have Permission", Toast.LENGTH_LONG).show();
-        }
-
-
-    }
-
-    private void getPermission() {
-        //Settings.ACTION_MANAGE_APP_FILES_ACCESS_PERMISSION
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            try {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                Uri uri = Uri.fromParts("package", getPackageName(), null);
-                intent.setData(uri);
-                startActivity(intent);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                startActivity(intent);
-            }
-
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 101);
-        }
-    }
-
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {           //Asks for permission and shit
-        switch (requestCode) {
-            case MY_PERMISSION_REQUEST: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (ContextCompat.checkSelfPermission(FullscreenActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(this, "Permission Granted (ML)", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(this, "Permission NOT Granted (ML)", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                return;
-            }
-        }
-
-
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
+            // for each permission check if the user granted/denied them
+            // you may want to group the rationale in a single dialog,
+            // this is just an example
+            for (int i = 0, len = permissions.length; i < len; i++) {
+                String permission = permissions[i];
+                if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                    // user rejected the permission
 
-        if (grantResults.length > 0) {
-            if (requestCode == 101) {
-                boolean readExt = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                if (!readExt) {
-                    getPermission();
+                } else {
+                    //User accepts
+                    OpenPlaylistView();
                 }
             }
         }
@@ -474,9 +427,9 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     }
 
-    public ArrayList<File> getFiles (File dir) {
+    public ArrayList<File> getFiles(File dir) {
         ArrayList<File> Files = new ArrayList<File>();
-        for (File path: dir.listFiles()) {
+        for (File path : dir.listFiles()) {
             if (path.isFile()) {
                 Files.add(path);
             } else if (path.isDirectory()) {
@@ -485,6 +438,119 @@ public class FullscreenActivity extends AppCompatActivity {
         }
         return Files;
     }
+
+    public ArrayList<File> getDirectory(File dir) {
+        ArrayList<File> Dir = new ArrayList<File>();
+        for (File path : dir.listFiles()) {
+            if (path.isDirectory()) {
+                Dir.add(path);
+                Dir.addAll(getFiles(path));
+            } else if (path.isFile()) {
+
+            }
+        }
+        return Dir;
+    }
+
+    public boolean containsElementAlbum(ArrayList<AlbumClass> arrayList, Object obj) {
+        for (AlbumClass cl : arrayList) {
+            if (cl.AlName.equals(obj)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsElementArtist(ArrayList<ArtistClass> arrayList, Object obj) {
+        for (ArtistClass cl : arrayList) {
+            if (cl.AName.equals(obj)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int indexElementArray(ArrayList<AlbumClass> arrayList, Object obj) {
+        if (obj == null) {
+            return -1;
+        } else {
+            for (int i = 0; i < arrayList.size(); i++) {
+                if (arrayList.get(i).AlName.equals(obj)) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+    }
+
+    public ArrayList<Integer> indexElements(String str, String ch) {
+        ArrayList<Integer> index = new ArrayList<Integer>();
+        if (ch.length() == 1) {
+            for (int i = 0; i < str.length(); i++) {
+                if (str.charAt(i) == ch.charAt(0)) {
+                    index.add(i);
+                }
+            }
+        } else {
+            for (int i = 0; i < str.length(); i++) {
+                if (str.charAt(i) == ch.charAt(0)) {
+                    for (int j = str.length(); j > 0; j--) {
+                        if (i < j && (j - i) >= ch.length()) {
+                            String newstr = "";
+                            for (int g = i; g < j; g++) {
+                                newstr = newstr + str.charAt(g);
+                            }
+                            if (newstr.equals(ch)) {
+                                index.add(i);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        return index;
+    }
+
+    public int getIndexInt(ArrayList<Integer> array, boolean max) {
+        int maxInd = 0;
+        int num = 0;
+        if (array.size() == 1) {
+            maxInd = 0;
+            int hi = 0;
+        } else {
+            if (max) {
+                for (int i : array) {
+                    if (i >= array.get(maxInd)) {
+                        maxInd = num;
+                    }
+                    num++;
+                }
+            } else {
+                for (int i : array) {
+                    if (i <= array.get(maxInd)) {
+                        maxInd = num;
+                    }
+                    num++;
+                }
+            }
+
+        }
+        return maxInd;
+    }
+
+    public String substringStr(String str, String ch1, String ch2) {
+        ArrayList<Integer> index = indexElements(str, ch1);
+        String newstr = "";
+        int Start = index.get(getIndexInt(index, true));
+        int End = indexElements(str, ch2).get(getIndexInt(indexElements(str, ch2), false));
+        for (int i = Start + 1; i < End; i++) {
+
+            newstr = newstr + str.charAt(i);
+        }
+        return newstr;
+    }
+
 
     @SuppressLint("Range")
     @RequiresApi(api = Build.VERSION_CODES.Q)
@@ -498,16 +564,33 @@ public class FullscreenActivity extends AppCompatActivity {
             File directory = new File(String.valueOf(Environment.getExternalStoragePublicDirectory("Music")));
             File[] mp3files = directory.listFiles();
             ArrayList<File> Files = new ArrayList<File>();
-            for (File file: mp3files) {
+            String[] idk = directory.list();
+
+            for (File file : mp3files) {
                 if (file.isFile()) {
                     Files.add(file);
                 } else if (file.isDirectory()) {
                     Files.addAll(getFiles(file));
                 }
             }
+
+            ArrayList<File> Folders = new ArrayList<File>();
+            //Collect Folders
+            for (File file : mp3files) {
+                if (file.isDirectory()) {
+                    Folders.add(file);
+                    Folders.addAll(getDirectory(file));
+                }
+            }
             //Remove all unwanted file types
             ArrayList<File> MusicFiles = new ArrayList<File>();
             for (File file : Files) {
+                for (String type : FileTypes) {
+                    if (file.getAbsolutePath().endsWith(type)) {
+                        MusicFiles.add(file);
+                    }
+                }
+                /*
                 if (file.getAbsolutePath().endsWith(FileTypes[0])) {
                     MusicFiles.add(file);
                 } else if (file.getAbsolutePath().endsWith(FileTypes[1])) {
@@ -519,7 +602,12 @@ public class FullscreenActivity extends AppCompatActivity {
                 } else if (file.getAbsolutePath().endsWith(FileTypes[4])) {
                     MusicFiles.add(file);
                 }
+
+                 */
             }
+
+            //
+            Collections.sort(MusicFiles);
 
 
             //Retrieve Data
@@ -533,12 +621,14 @@ public class FullscreenActivity extends AppCompatActivity {
                 int Length = 0;
                 String Artist = "N/A";
                 String Album = "N/A";
+                String AlbumArtist = "N/A";
 
                 try {
                     Title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
                     Length = Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
                     Artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
                     Album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+                    AlbumArtist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST);
 
                     //byte[] AlbumArt = metaRetriever.getEmbeddedPicture();
                     //Bitmap bitmap = BitmapFactory.decodeByteArray(AlbumArt, 0, AlbumArt.length);
@@ -548,6 +638,7 @@ public class FullscreenActivity extends AppCompatActivity {
                     Songs.get(num).SongPath = file.toString();
                     Songs.get(num).ArtistName = Artist;
                     Songs.get(num).AlbumName = Album;
+                    Songs.get(num).AlbumArtist = AlbumArtist;
 
                 } catch (Exception e) {
                     Songs.get(num).SongName = Title;
@@ -555,18 +646,81 @@ public class FullscreenActivity extends AppCompatActivity {
                     Songs.get(num).SongPath = file.toString();
                     Songs.get(num).ArtistName = Artist;
                     Songs.get(num).AlbumName = Album;
+                    Songs.get(num).AlbumArtist = AlbumArtist;
                 }
                 num++;
             }
 
             //Make Album and Artist Data types
+            num = 0;
+            for (SongClass song : Songs) {
+                if (song.ArtistName == null) {
+                    song.ArtistName = "N/A";
+                }
+                if (song.AlbumName == null) {
+                    song.AlbumName = "N/A";
+                }
+                if (song.AlbumArtist == null) {
+                    song.AlbumArtist = "N/A";
+                }
+                if (song.SongName == null) {
+                    song.SongName = substringStr(song.SongPath, "/", ".mp3");
+                }
+                num++;
+            }
+
+
+            num = 0;
+            for (SongClass song : Songs) {
+                // if (song.AlbumName == null || song.ArtistName == null) {
+                //     int hi1 = 0;
+                //  } else {
+                if (containsElementAlbum(Albums, song.AlbumName)) {
+                    //Check album artist
+                    int index = indexElementArray(Albums, song.AlbumName);
+                    if (index >= 0) {
+                        //if (Albums.get(index).AlArtist == null) {
+                        //    // int idk = 0;
+                        //     int hi1 = 0;
+                        // } else {
+                        if (!Albums.get(index).AlArtist.equals(song.AlbumArtist)) {
+                            //Save Album
+                            Albums.add(new AlbumClass());
+                            Albums.get(num).AlName = song.AlbumName;
+                            Albums.get(num).AlArtist = song.AlbumArtist;
+                            Albums.get(num).AlbumArt = song.SongPath;
+                            num++;
+                        }
+                        // }
+
+                    }
+                } else {
+                    //Save AlbumName
+                    Albums.add(new AlbumClass());
+                    Albums.get(num).AlName = song.AlbumName;
+                    Albums.get(num).AlArtist = song.AlbumArtist;
+                    Albums.get(num).AlbumArt = song.SongPath;
+                    num++;
+                }
+                //}
+            }
+
+            for (SongClass song : Songs) {
+                if (containsElementArtist(Artists, song.ArtistName)) {
+                    //Do nothing
+                } else {
+                    Artists.add(new ArtistClass());
+                    Artists.get(num).AName = song.ArtistName;
+
+                }
+
+
+            }
 
 
 
 
-
-
-            int idk = 0;
+            int idk1 = 0;
 
         } else {
             String[] projection = {MediaStore.Audio.AudioColumns.TITLE, MediaStore.Audio.AudioColumns.ARTIST, MediaStore.Audio.AudioColumns.DURATION, MediaStore.Audio.Media.DATA, MediaStore.Audio.AudioColumns.ALBUM, MediaStore.Audio.AudioColumns.ARTIST_ID, MediaStore.Audio.AudioColumns.ALBUM_ID};

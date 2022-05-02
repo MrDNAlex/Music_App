@@ -70,6 +70,7 @@ public class SongClass {
     public int LastTimePlayed;
     public String AlbumID; //Maybe int
     public String ArtistID; //Maybe int
+    public String AlbumArtist;
     public String FileSongID;
     public int Colours; //Int, array, Background Colour
 

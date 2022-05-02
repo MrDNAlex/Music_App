@@ -24,7 +24,7 @@ SIDx, SIDx,
  */
 
     public String AlName;
-    public String ArName;
+    public String AlArtist;
     public String AlbumArt;
     public int PlaylistRank;
     public int UniversalRank;
