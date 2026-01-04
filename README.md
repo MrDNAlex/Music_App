@@ -4,7 +4,8 @@ A Personal Music App for Android devices that I made.
 This project was developped starting in July 2020 and was considered "semi-complete" in March 2021 when I had to start focusing on things for University. 
 Someday I plan to remake this app with object oriented practices and more efficient code as I realize now that it is not very efficient
 
-WARNING - App is severly outdated, at the time I had no concept of OOP, Good code design, and how to make things efficiency. I relied on brute force methods and just having something that 'works' since I had a Overclocked phone. Since then I would consider myself having learnt the majority of the skills necessary to make this optimal and functional. App is also only functional for Android 8 - Android 10 Devices
+> [!WARNING]
+> App is severly outdated, at the time I had no concept of OOP, Good code design, and how to make things efficiency. I relied on brute force methods and just having something that 'works' since I had a Overclocked phone. Since then I would consider myself having learnt the majority of the skills necessary to make this optimal and functional. App is also only functional for Android 8 - Android 10 Devices
 
 # Screenshots from App
 
